@@ -25,10 +25,8 @@ $global:run = $true
 $global:interval = $interval
 
 # Constants
-$VK_SCROLL = 0x91
-$KEYEVENTF_KEYUP = 0x0002
 $ICON_TEXT_BASE = "Auto Scroll Lock"
-$ICON_DLL_PATH = "C:\Windows\System32\imageres.dll"
+$ICON_DLL_PATH = [System.IO.Path]::Combine($env:windir, "System32", "imageres.dll")
 $ICON_INDEX = 81
 
 # Add ScrollLockToggler class
@@ -65,7 +63,7 @@ public class IconExtractor {
 "@
 
 # Function to create tray icon
-function Create-TrayIcon {
+function New-TrayIcon {
     $hIcon = [IconExtractor]::ExtractIcon([IntPtr]::Zero, $ICON_DLL_PATH, $ICON_INDEX)
     $iconObj = [System.Drawing.Icon]::FromHandle($hIcon)
 
@@ -77,7 +75,7 @@ function Create-TrayIcon {
 }
 
 # Function to create context menu
-function Create-ContextMenu {
+function New-ContextMenu {
     $menu = New-Object System.Windows.Forms.ContextMenuStrip
 
     # Pause item
@@ -135,8 +133,8 @@ function Update-TrayIconText {
 }
 
 # Create tray icon and context menu
-$icon = Create-TrayIcon
-$menu = Create-ContextMenu
+$icon = New-TrayIcon
+$menu = New-ContextMenu
 $icon.ContextMenuStrip = $menu
 
 # Timer to control Scroll Lock keypress
@@ -144,7 +142,7 @@ $script:statusScroll = 0
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = $global:interval * 1000
 $timer.Add_Tick({
-    if ($global:run) {
+    if ($global:run -eq $true) {
         [ScrollLockToggler]::ToggleScrollLock()
 
         # Read actual Scroll Lock state
